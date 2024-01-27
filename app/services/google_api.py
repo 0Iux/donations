@@ -1,23 +1,15 @@
-# app/services/google_api.py
-
 from datetime import datetime
 
 from aiogoogle import Aiogoogle
-# В секретах лежит адрес вашего личного гугл-аккаунта
+
 from app.core.config import settings
 
-# Константа с форматом строкового представления времени
 FORMAT = "%Y/%m/%d %H:%M:%S"
-
-# app/services/google_api.py
 
 
 async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
-    # Получаем текущую дату для заголовка документа
     now_date_time = datetime.now().strftime(FORMAT)
-    # Создаём экземпляр класса Resource
     service = await wrapper_services.discover('sheets', 'v4')
-    # Формируем тело запроса
     spreadsheet_body = {
         'properties': {'title': f'Отчёт на {now_date_time}',
                        'locale': 'ru_RU'},
@@ -27,7 +19,6 @@ async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
                                    'gridProperties': {'rowCount': 100,
                                                       'columnCount': 11}}}]
     }
-    # Выполняем запрос
     response = await wrapper_services.as_service_account(
         service.spreadsheets.create(json=spreadsheet_body)
     )
@@ -63,16 +54,19 @@ async def spreadsheets_update_value(
         ['Топ проектов по скорости закрытия'],
         ['Название проекта', 'Время сбора', 'Описание']
     ]
-    # Здесь в таблицу добавляются строчки
     for project in projects:
-        new_row = [str(project['name']), str(project['close_date'] - project['create_date']), str(project['descriptions'])]
+        new_row = [
+            str(project['name']),
+            str(project['close_date'] - project['create_date']),
+            str(project['descriptions'])
+        ]
         table_values.append(new_row)
 
     update_body = {
         'majorDimension': 'ROWS',
         'values': table_values
     }
-    response = await wrapper_services.as_service_account(
+    await wrapper_services.as_service_account(
         service.spreadsheets.values.update(
             spreadsheetId=spreadsheetid,
             range='A1:C30',
