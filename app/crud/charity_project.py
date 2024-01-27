@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
@@ -18,6 +18,20 @@ class CRUDMCharityProject(CRUDBase):
         )
         project = project.scalars().first()
         return project
+
+    async def get_all_closed_projects(
+            self,
+            session: AsyncSession
+    ) -> list[CharityProject]:
+        charity_projects = await session.execute(
+            select(CharityProject).where(
+                CharityProject.fully_invested
+            ).order_by(
+                func.julianday(CharityProject.close_date) -
+                func.julianday(CharityProject.create_date)
+            )
+        )
+        return charity_projects.scalars().all()
 
 
 charity_project_crud = CRUDMCharityProject(CharityProject)
