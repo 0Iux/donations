@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_async_session
 from app.core.google_client import get_service
 from app.core.user import current_superuser
-from app.services.google_api import (
+from app.services import (
     spreadsheets_create, set_user_permissions, spreadsheets_update_value
 )
 from app.crud.charity_project import charity_project_crud
@@ -27,9 +27,9 @@ async def get_report(
     projects = await charity_project_crud.get_all_closed_projects(
         session
     )
-    spreadsheetid = await spreadsheets_create(wrapper_services)
-    await set_user_permissions(spreadsheetid, wrapper_services)
-    await spreadsheets_update_value(spreadsheetid,
+    spreadsheet_id = await spreadsheets_create(wrapper_services)
+    await set_user_permissions(spreadsheet_id, wrapper_services)
+    await spreadsheets_update_value(spreadsheet_id,
                                     projects,
                                     wrapper_services)
-    return spreadsheetid
+    return spreadsheet_id
