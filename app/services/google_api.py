@@ -56,9 +56,9 @@ async def spreadsheets_update_value(
     ]
     for project in projects:
         new_row = [
-            str(project['name']),
-            str(project['close_date'] - project['create_date']),
-            str(project['descriptions'])
+            str(project.name),
+            str(project.close_date - project.create_date),
+            str(project.description)
         ]
         table_values.append(new_row)
 
